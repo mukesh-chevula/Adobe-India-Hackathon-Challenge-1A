@@ -76,73 +76,17 @@ class PDFProcessor:
     
     def save_result(self, result: Dict[str, Any], output_path: Path) -> None:
         """
-        Save the extraction result to a JSON file with validation.
+        Save the extraction result to a JSON file.
         
         Args:
             result: The extraction result dictionary
             output_path: Path where to save the JSON file
         """
         try:
-            # Validate the result against schema before saving
-            is_valid, errors = self._validate_result(result)
-            
-            if not is_valid:
-                print(f"  {colored_text('Schema validation warnings', '33')} for {output_path.name}:")
-                for error in errors[:3]:  # Show first 3 errors
-                    print(f"     - {error}")
-                if len(errors) > 3:
-                    print(f"     ... and {len(errors) - 3} more warning(s)")
-            
             # Save the JSON file
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(result, f, indent=2, ensure_ascii=False)
                 
-            if is_valid:
-                print(f"  {colored_text('Schema validation passed', '32')}")
-            
         except Exception as e:
             print(f"Error saving result to {output_path}: {str(e)}")
             raise
-    
-    def _validate_result(self, result: Dict[str, Any]) -> tuple:
-        """
-        Validate result against Challenge 1A schema.
-        
-        Args:
-            result: The result dictionary to validate
-            
-        Returns:
-            Tuple of (is_valid, error_list)
-        """
-        errors = []
-        
-        # Check title
-        title = result.get('title', '')
-        if not title or not isinstance(title, str) or len(title.strip()) < 3:
-            errors.append("Title must be a non-empty string with at least 3 characters")
-        
-        # Check outline
-        outline = result.get('outline', [])
-        if not isinstance(outline, list):
-            errors.append("Outline must be an array")
-        else:
-            for i, item in enumerate(outline):
-                if not isinstance(item, dict):
-                    errors.append(f"Outline item {i} must be an object")
-                    continue
-                
-                # Check required fields
-                level = item.get('level', '')
-                text = item.get('text', '')
-                page = item.get('page')
-                
-                if level not in ['H1', 'H2', 'H3']:
-                    errors.append(f"Item {i}: level must be H1, H2, or H3")
-                
-                if not text or not isinstance(text, str):
-                    errors.append(f"Item {i}: text must be a non-empty string")
-                
-                if not isinstance(page, int) or page < 1:
-                    errors.append(f"Item {i}: page must be a positive integer")
-        
-        return len(errors) == 0, errors

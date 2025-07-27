@@ -24,8 +24,18 @@ def main():
     start_time = time.time()
     
     # Define input and output directories
-    input_dir = Path("/app/input")
-    output_dir = Path("/app/output")
+    # Check if running in Docker container
+    if os.path.exists('/app') and os.path.exists('/app/src'):
+        # Running in Docker
+        input_dir = Path("/app/input")
+        output_dir = Path("/app/output")
+        print("Running in Docker container")
+    else:
+        # Running locally
+        script_dir = Path(__file__).parent
+        input_dir = script_dir / "input"
+        output_dir = script_dir / "output"
+        print("Running locally")
     
     # Create output directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)

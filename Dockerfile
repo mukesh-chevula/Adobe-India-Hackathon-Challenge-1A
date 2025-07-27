@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
+# Copy source code and main script
 COPY src/ ./src/
 COPY process_pdfs.py .
 
@@ -22,5 +22,5 @@ RUN mkdir -p /app/input /app/output
 ENV PYTHONPATH=/app/src
 ENV PYTHONUNBUFFERED=1
 
-# Run the processing script
+# Default command - run the PDF processing script
 CMD ["python", "process_pdfs.py"]
